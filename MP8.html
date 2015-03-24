@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>CS 105: Olympic Medals</title>
+		<script type="text/javascript" src="d3.js"></script>
+		<script type="text/javascript" src="underscore.js"></script>
+		<link rel="stylesheet" type="text/css" href="css.css" />
+	</head>
+	<body>
+		<script type="text/javascript">
+			
+			
+			var isLowerScoreBetter = true;
+		
+			// ariable to store the data that will be visualized:			
+			var scores =
+			[
+			
+				[
+					{ score: 21.74, medal: "Gold", year: 2008},
+					{ score: 21.93, medal: "Silver", year: 2008},
+					{ score: 21.22, medal: "Bronze", year: 2008}
+				],
+				[
+					{ score: 22.05, medal: "Gold", year: 2004},
+					{ score: 22.18, medal: "Silver", year: 2004},
+					{ score: 22.3, medal: "Bronze", year: 2004}
+				],
+				[
+					{ score: 22.27, medal: "Gold", year: 2000},
+					{ score: 22.28, medal: "Silver", year: 2000},
+					{ score: 22.35, medal: "Bronze", year: 2000}
+				],
+				[
+					{ score: 22.12, medal: "Gold", year: 1996},
+					{ score: 22.14, medal: "Silver", year: 1996},
+					{ score: 22.38, medal: "Bronze", year: 1996}
+				],
+				[
+					{ score: 21.81, medal: "Gold", year: 1992},
+					{ score: 22.02, medal: "Silver", year: 1992},
+					{ score: 22.09, medal: "Bronze", year: 1992}
+				],
+				[
+					{ score: 21.34, medal: "Gold", year: 1988},
+					{ score: 21.72, medal: "Silver", year: 1988},
+					{ score: 21.95, medal: "Bronze", year: 1988}
+				],
+				[
+					{ score: 21.81, medal: "Gold", year: 1984},
+					{ score: 22.04, medal: "Silver", year: 1984},
+					{ score: 22.09, medal: "Bronze", year: 1984}
+				],
+				[
+					{ score: 22.03, medal: "Gold", year: 1980},
+					{ score: 22.19, medal: "Silver", year: 1980},
+					{ score: 22.2, medal: "Bronze", year: 1980}
+				],
+				[
+					{ score: 22.37, medal: "Gold", year: 1976},
+					{ score: 22.39, medal: "Silver", year: 1976},
+					{ score: 22.47, medal: "Bronze", year: 1976}
+				],
+				[
+					{ score: 22.4, medal: "Gold", year: 1972},
+					{ score: 22.45, medal: "Silver", year: 1972},
+					{ score: 22.74, medal: "Bronze", year: 1972}
+				],
+				[
+					{ score: 22.5, medal: "Gold", year: 1968},
+					{ score: 22.7, medal: "Silver", year: 1968},
+					{ score: 22.8, medal: "Bronze", year: 1968}
+				],
+				[
+					{ score: 23, medal: "Gold", year: 1964},
+					{ score: 23.1, medal: "Silver", year: 1964},
+					{ score: 23.1, medal: "Bronze", year: 1964}
+				],
+				[
+					{ score: 24, medal: "Gold", year: 1960},
+					{ score: 24.4, medal: "Silver", year: 1960},
+					{ score: 24.7, medal: "Bronze", year: 1960}
+				],
+				[
+					{ score: 23.4, medal: "Gold", year: 1956},
+					{ score: 23.7, medal: "Silver", year: 1956},
+					{ score: 23.8, medal: "Bronze", year: 1956}
+				],
+				[
+					{ score: 23.7, medal: "Gold", year: 1952},
+					{ score: 24.2, medal: "Silver", year: 1952},
+					{ score: 24.2, medal: "Bronze", year: 1952}
+				],
+				[
+					{ score: 24.4, medal: "Gold", year: 1948},
+					{ score: 25.1, medal: "Silver", year: 1948},
+					{ score: 25.2, medal: "Bronze", year: 1948}
+				],
+				
+			
+			];
+			
+			console.log(scores);
+			
+	
+			// Find the max/min scores for the x-axis:
+			var allScores = _.chain(scores)
+			                 .flatten()
+							 .map( function(d) { return d.score; } )
+							 .unique()
+							 .value();
+							 
+			var score_max = _.max(allScores);
+			var score_min = _.min(allScores);
+			
+			// Find all of the dates used as part of the data:
+			var dates = _.chain(scores)
+			             .flatten()
+			             .map( function (d) { return d.year; } )
+						 .unique()
+						 .value();
+
+			// Global SVG parameters
+
+			var w = 1000;
+			var h = (dates.length * 20) + 30;
+
+			// Set up the SVG:
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", w + 100)
+						.attr("height", h);
+
+			
+			// Set up the X/Y axes and grid lines:
+			var score_domain;
+			if (isLowerScoreBetter) { score_domain = [score_max, score_min]; }
+			else { score_domain = [score_min, score_max]; }
+			
+			function date_axis()
+			{
+				return d3.svg.axis()
+				             .scale( d3.scale.linear()
+											 .domain( [_.max(dates), _.min(dates)] )
+											 .range( [ 30, ((dates.length - 1) * 20) + 30 ] ) )
+							 .tickValues(dates)
+							 .tickFormat(function(d) { return d + ""; })
+							 .orient("right");
+			}
+
+			var date_grid = date_axis().tickSize(w + 10, 0, 0)
+			                           .tickFormat("");
+			
+			
+			function score_axis()
+			{
+				return d3.svg.axis()
+						     .scale( d3.scale.linear()
+										   .domain( score_domain )
+										   .range( [10, w + 10] )
+						     )
+						     .orient("top");
+			};
+								   
+			var score_grid = score_axis().tickSize(-1 * (((dates.length - 1) * 20) + 10), 0, 0)
+			                             .tickFormat("");
+			
+			
+			// Draw the axes:
+			svg.append("g")
+			   .attr("class", "grid2")
+			   .call(date_grid);
+			
+			svg.append("g")
+			   .attr("class", "grid")
+			   .attr("transform", "translate(0, 20)")
+			   .call(score_grid);
+			   
+			svg.append("g")
+			   .attr("class", "axis")
+			   .attr("transform", "translate(" + (w + 10) + ", 0)")
+			   .call(date_axis());
+			   
+			svg.append("g")
+			   .attr("class", "axis")
+			   .attr("transform", "translate(0, 20)")
+			   .call(score_axis());
+			
+			
+			// Draw the data!
+			svg.selectAll("circle")
+			   .data(scores)
+			   .enter()
+			   .append("g")
+			   .selectAll("circle")
+			   .data(function (d, i) { return d; })
+			   .enter()
+
+				.append("circle")
+				
+				.attr("cy", function(d,i){
+				return ((2008-d.year)/(2008-1948)*((2008-d.year)/4*20)+30);
+				})
+				
+				.attr("cx", function (d,i){
+				return ((score_max-d.score)/(score_max-score_min)*w+10);
+				})
+		
+		
+		
+				.attr("r",5)
+				.attr("stroke-width",2)
+				
+		
+				.attr("stroke", function(d,i){
+					if (d.medal=="Gold"){
+						return "#FF9900";
+						}
+					else if (d.medal=="Silver"){
+						return "#666633";
+						}
+					else {
+						return "#993300";
+						}
+					}
+				)
+				
+				.attr("fill", function(d,i){
+			
+					if (d.medal=="Gold"){
+						return "#FFCC00";
+						}
+					else if (d.medal=="Silver"){
+						return "#999966";
+						}
+					else {
+						return "#CC6600";
+						}
+				}
+				)
+				;
+				
+			   ;
+		</script>
+	</body>
+</html>
