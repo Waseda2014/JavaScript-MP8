@@ -1,0 +1,28 @@
+.axis path,
+.axis line {
+	fill: none;
+	stroke: black;
+	shape-rendering: crispEdges;
+}
+
+.grid {
+	fill: none;
+	stroke: #dddddd;
+	shape-rendering: crispEdges;
+}
+
+.grid2 {
+	fill: none;
+	stroke: #dddddd;
+	stroke-dasharray: 5,10;
+	shape-rendering: crispEdges;
+}
+
+.axis text {
+	font-family: sans-serif;
+	font-size: 11px;
+}
+
+body {
+	text-align: center;
+}
